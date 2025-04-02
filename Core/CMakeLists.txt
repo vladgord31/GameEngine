@@ -5,6 +5,7 @@ set(ENGINE_PROJECT_NAME Core)
 set(ENGINE_PUBLIC_INCLUDES
     includes/Core/Application.hpp
     includes/Core/Log.hpp
+    includes/Core/Event.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES

@@ -24,7 +24,7 @@ namespace Engine
 			m_pWindow->on_update();
 			on_update();
 		}
-
+		
 		return 0;
 	}
 }
