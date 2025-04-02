@@ -1,0 +1,24 @@
+# Build files
+build/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# IDE and editor files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+/.vs/
+
+# Temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+
+# Exclude external 
+/external/spdlog/
+/external/glfw/
