@@ -11,7 +11,7 @@ namespace Engine
 	class Window
 	{
 	public:
-		using EventCallbackFn = std::function<void(Event&)>;
+		using EventCallbackFn = std::function<void(BaseEvent&)>;
 
 		Window(unsigned int width, unsigned int height, std::string title);
 		~Window();

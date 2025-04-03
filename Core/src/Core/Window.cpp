@@ -9,7 +9,7 @@ namespace Engine
     static bool s_GLFW_initialized = false;
 
 	Window::Window(unsigned int width, unsigned int height, std::string title)
-		: m_data({std::move(title), height, width})
+		: m_data({std::move(title), width, height})
 	{
 		int returnCode = init();
 	}
@@ -60,10 +60,29 @@ namespace Engine
                 data.width = width;
                 data.height = height;
 
-                Event event;
-                event.width = width;
-                event.height = height;
+                EventWindowResize event(width, height);
                 data.eventCallbackFn(event);
+            }
+        );
+
+        glfwSetWindowCloseCallback(m_pWindow,
+            [](GLFWwindow* pWindow)
+            {
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+
+                EventWindowClose event;
+                data.eventCallbackFn(event);
+            }
+        );
+
+        glfwSetCursorPosCallback(m_pWindow,
+            [](GLFWwindow* pWindow, double x, double y)
+            {
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+
+                EventMouseMoved event(x, y);
+                data.eventCallbackFn(event);
+
             }
         );
 
