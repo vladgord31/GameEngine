@@ -23,7 +23,7 @@ namespace Engine
 		m_event_dispatcher.add_event_listener<EventMouseMoved>(
 			[](EventMouseMoved& event)
 			{	
-				LOG_INFO("[MOUSE] Mouse moved to{0}x{1}.", event.m_x, event.m_y);
+				LOG_INFO("[MOUSE] Mouse moved to {0}x{1}.", event.m_x, event.m_y);
 			}
 		);
 
