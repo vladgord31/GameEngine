@@ -1,6 +1,7 @@
 #include "Core/Window.hpp"
 #include "Core/Log.hpp"
 #include "Core/Renderer/OpenGL/ShaderProgram.hpp"
+#include "Core/Renderer/OpenGL/VertexBuffer.hpp"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -13,18 +14,11 @@ namespace Engine
 {
     static bool s_GLFW_initialized = false;
 
-    GLfloat points[] =
+    GLfloat vertices[] =
     {
-         0.0f,  0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-    };
-
-    GLfloat colors[] =
-    {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,
+         0.0f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
     };
 
     const char* vertex_shader =
@@ -40,13 +34,16 @@ namespace Engine
     const char* fragment_shader =
         "#version 460\n"
         "in vec3 color;"
-        "out vec4 frag_color;"
+        "out vec4 fragment_color;"
         "void main() {"
-        "   frag_color = vec4(color, 1.0f);"
+        "   fragment_color = vec4(color, 1.0f);"
         "}";
 
     std::unique_ptr<ShaderProgram> p_shader_program;
-    GLuint vao;
+    std::unique_ptr<VertexBuffer> p_vertices_vbo;
+
+    static GLuint vao = 0;
+    static GLuint vbo = 0;
 
 	Window::Window(unsigned int width, unsigned int height, std::string title)
 		: m_data({std::move(title), width, height})
@@ -55,7 +52,7 @@ namespace Engine
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGui_ImplOpenGL3_Init();
+        ImGui_ImplOpenGL3_Init("#version 460");
         ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 	}
 
@@ -144,26 +141,19 @@ namespace Engine
             return false;
         }
 
-        GLuint points_vbo = 0;
-        glGenBuffers(1, &points_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-
-        GLuint colors_vbo = 0;
-        glGenBuffers(1, &colors_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
-        glGenVertexArrays(0, &vao);
+        glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
 
+        p_vertices_vbo = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
+
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
 
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+        p_vertices_vbo->unbind();
+        glBindVertexArray(0);
 
         return 0;
 	}
@@ -193,7 +183,7 @@ namespace Engine
 
         ImGui::ShowDemoWindow();
 
-        ImGui::Begin("Change backdround color");
+        ImGui::Begin("Change background color");
         ImGui::ColorEdit4("Background color", m_background_color);
         ImGui::End();
 
@@ -211,6 +201,9 @@ namespace Engine
 
     void Window::shutdown()
     {
+        if (vao) glDeleteVertexArrays(1, &vao);
+        if (vbo) glDeleteBuffers(1, &vbo);
+
         if (m_pWindow)
         {
             glfwDestroyWindow(m_pWindow);

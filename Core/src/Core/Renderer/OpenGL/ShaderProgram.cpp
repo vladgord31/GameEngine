@@ -88,7 +88,10 @@ namespace Engine
 
 	ShaderProgram::~ShaderProgram()
 	{
-		glDeleteProgram(m_id);
+		if (m_id != 0)
+		{
+			glDeleteProgram(m_id);
+		}
 	}
 
 	void ShaderProgram::bind() const
@@ -108,14 +111,19 @@ namespace Engine
 
 	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram)
 	{
-		glDeleteProgram(m_id);
+		if (this != &shaderProgram)
+		{
+			if (m_id != 0)
+			{
+				glDeleteProgram(m_id);
+			}
 
-		m_id = shaderProgram.m_id;
-		m_isCompiled = shaderProgram.m_isCompiled;
+			m_id = shaderProgram.m_id;
+			m_isCompiled = shaderProgram.m_isCompiled;
 
-		shaderProgram.m_id = 0;
-		shaderProgram.m_isCompiled = false;
-
+			shaderProgram.m_id = 0;
+			shaderProgram.m_isCompiled = false;
+		}
 		return *this;
 	}
 
