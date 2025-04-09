@@ -13,13 +13,12 @@ namespace Engine
 		};
 
 		VertexBuffer(const void* data, const size_t size, EUsage usage = VertexBuffer::EUsage::Static);
+		VertexBuffer& operator=(VertexBuffer&&) noexcept;
+		VertexBuffer(VertexBuffer&&) noexcept;
 		~VertexBuffer();
 
-		VertexBuffer(const VertexBuffer& vertexBuffer) = delete;
-		VertexBuffer& operator=(const VertexBuffer& vertexBuffer) = delete;
-
-		VertexBuffer& operator=(VertexBuffer&& vertexBuffer) noexcept; 
-		VertexBuffer(VertexBuffer&& vertexBuffer) noexcept;
+		VertexBuffer(const VertexBuffer&) = delete;
+		VertexBuffer& operator=(const VertexBuffer&) = delete;
 
 		void bind() const;
 		static void unbind();

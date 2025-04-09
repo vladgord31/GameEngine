@@ -2,6 +2,7 @@
 #include "Core/Log.hpp"
 #include "Core/Renderer/OpenGL/ShaderProgram.hpp"
 #include "Core/Renderer/OpenGL/VertexBuffer.hpp"
+#include "Core/Renderer/OpenGL/VertexArray.hpp"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -41,6 +42,7 @@ namespace Engine
 
     std::unique_ptr<ShaderProgram> p_shader_program;
     std::unique_ptr<VertexBuffer> p_vertices_vbo;
+    std::unique_ptr<VertexArray> p_vao;
 
     static GLuint vao = 0;
     static GLuint vbo = 0;
@@ -145,15 +147,9 @@ namespace Engine
         glBindVertexArray(vao);
 
         p_vertices_vbo = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
+        p_vao = std::make_unique<VertexArray>();
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-        p_vertices_vbo->unbind();
-        glBindVertexArray(0);
+        p_vao->add_buffer(*p_vertices_vbo);
 
         return 0;
 	}
@@ -170,7 +166,7 @@ namespace Engine
         glClear(GL_COLOR_BUFFER_BIT);
 
         p_shader_program->bind();
-        glBindVertexArray(vao);
+        p_vao->bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         ImGuiIO& io = ImGui::GetIO();
