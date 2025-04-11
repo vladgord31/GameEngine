@@ -44,17 +44,23 @@ namespace Engine
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::add_buffer(const VertexBuffer& vertexBuffer)
+	void VertexArray::add_buffer(const VertexBuffer& vertex_buffer)
 	{
 		bind();
-		vertexBuffer.bind();
+		vertex_buffer.bind();
 
-		glEnableVertexAttribArray(m_element_count);
-		glVertexAttribPointer(m_element_count, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)(0));
-		++m_element_count;
-
-		glEnableVertexAttribArray(m_element_count);
-		glVertexAttribPointer(m_element_count, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (const void*)(3 * sizeof(float)));
-		++m_element_count;
+		for (const BufferElement& current_element : vertex_buffer.get_layout().get_elements())
+		{
+			glEnableVertexAttribArray(m_element_count);
+			glVertexAttribPointer(
+				m_element_count,
+				static_cast<GLuint>(current_element.components_count),
+				current_element.component_type,
+				GL_FALSE,
+				static_cast<GLsizei>(vertex_buffer.get_layout().get_stride()),
+				reinterpret_cast<const void*>(current_element.offset)
+			);
+			++m_element_count;
+		}
 	}
 }

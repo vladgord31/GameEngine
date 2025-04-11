@@ -44,9 +44,6 @@ namespace Engine
     std::unique_ptr<VertexBuffer> p_vertices_vbo;
     std::unique_ptr<VertexArray> p_vao;
 
-    static GLuint vao = 0;
-    static GLuint vbo = 0;
-
 	Window::Window(unsigned int width, unsigned int height, std::string title)
 		: m_data({std::move(title), width, height})
 	{
@@ -143,11 +140,14 @@ namespace Engine
             return false;
         }
 
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        BufferLayout buffer_layout
+        {
+            ShaderDataType::Float3,
+            ShaderDataType::Float3,
+        };
 
-        p_vertices_vbo = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
         p_vao = std::make_unique<VertexArray>();
+        p_vertices_vbo = std::make_unique<VertexBuffer>(vertices, sizeof(vertices), buffer_layout);
 
         p_vao->add_buffer(*p_vertices_vbo);
 
@@ -177,7 +177,7 @@ namespace Engine
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
 
         ImGui::Begin("Change background color");
         ImGui::ColorEdit4("Background color", m_background_color);
@@ -197,9 +197,6 @@ namespace Engine
 
     void Window::shutdown()
     {
-        if (vao) glDeleteVertexArrays(1, &vao);
-        if (vbo) glDeleteBuffers(1, &vbo);
-
         if (m_pWindow)
         {
             glfwDestroyWindow(m_pWindow);
