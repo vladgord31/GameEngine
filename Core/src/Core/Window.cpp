@@ -15,7 +15,14 @@ namespace Engine
 {
     static bool s_GLFW_initialized = false;
 
-    GLfloat vertices[] =
+    GLfloat vertices1[] =
+    {
+         0.0f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 1.0f,
+    };
+
+    GLfloat vertices2[] =
     {
          0.0f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
          0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
@@ -41,8 +48,10 @@ namespace Engine
         "}";
 
     std::unique_ptr<ShaderProgram> p_shader_program;
-    std::unique_ptr<VertexBuffer> p_vertices_vbo;
-    std::unique_ptr<VertexArray> p_vao;
+    std::unique_ptr<VertexBuffer> p_vertices1_vbo;
+    std::unique_ptr<VertexArray> p_vao1;
+    std::unique_ptr<VertexBuffer> p_vertices2_vbo;
+    std::unique_ptr<VertexArray> p_vao2;
 
 	Window::Window(unsigned int width, unsigned int height, std::string title)
 		: m_data({std::move(title), width, height})
@@ -146,10 +155,15 @@ namespace Engine
             ShaderDataType::Float3,
         };
 
-        p_vao = std::make_unique<VertexArray>();
-        p_vertices_vbo = std::make_unique<VertexBuffer>(vertices, sizeof(vertices), buffer_layout);
+        p_vao1 = std::make_unique<VertexArray>();
+        p_vertices1_vbo = std::make_unique<VertexBuffer>(vertices1, sizeof(vertices1), buffer_layout);
 
-        p_vao->add_buffer(*p_vertices_vbo);
+        p_vao1->add_buffer(*p_vertices1_vbo);
+
+        p_vao2 = std::make_unique<VertexArray>();
+        p_vertices2_vbo = std::make_unique<VertexBuffer>(vertices2, sizeof(vertices2), buffer_layout);
+
+        p_vao2->add_buffer(*p_vertices2_vbo);
 
         return 0;
 	}
@@ -165,10 +179,6 @@ namespace Engine
         glClearColor(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        p_shader_program->bind();
-        p_vao->bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
         io.DisplaySize.y = static_cast<float>(get_height());
@@ -181,6 +191,22 @@ namespace Engine
 
         ImGui::Begin("Change background color");
         ImGui::ColorEdit4("Background color", m_background_color);
+
+        static bool use_first_buffer = true;
+        ImGui::Checkbox("First Buffer: ", &use_first_buffer);
+        if (use_first_buffer)
+        {
+            p_shader_program->bind();
+            p_vao1->bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
+        else
+        {
+            p_shader_program->bind();
+            p_vao2->bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
+
         ImGui::End();
 
         ImGui::Render();
