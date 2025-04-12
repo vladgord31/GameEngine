@@ -3,6 +3,7 @@
 #include "Core/Renderer/OpenGL/ShaderProgram.hpp"
 #include "Core/Renderer/OpenGL/VertexBuffer.hpp"
 #include "Core/Renderer/OpenGL/VertexArray.hpp"
+#include "Core/Renderer/OpenGL/IndexBuffer.hpp"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -15,18 +16,15 @@ namespace Engine
 {
     static bool s_GLFW_initialized = false;
 
-    GLfloat vertices1[] =
-    {
-         0.0f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,
-         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 1.0f,
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f
     };
 
-    GLfloat vertices2[] =
-    {
-         0.0f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
+    GLuint indices[] = {
+         0, 1, 2, 3, 2, 1
     };
 
     const char* vertex_shader =
@@ -48,10 +46,9 @@ namespace Engine
         "}";
 
     std::unique_ptr<ShaderProgram> p_shader_program;
-    std::unique_ptr<VertexBuffer> p_vertices1_vbo;
-    std::unique_ptr<VertexArray> p_vao1;
-    std::unique_ptr<VertexBuffer> p_vertices2_vbo;
-    std::unique_ptr<VertexArray> p_vao2;
+    std::unique_ptr<VertexBuffer> p_vertices;
+    std::unique_ptr<IndexBuffer> p_index_buffer;
+    std::unique_ptr<VertexArray> p_vao;
 
 	Window::Window(unsigned int width, unsigned int height, std::string title)
 		: m_data({std::move(title), width, height})
@@ -155,15 +152,12 @@ namespace Engine
             ShaderDataType::Float3,
         };
 
-        p_vao1 = std::make_unique<VertexArray>();
-        p_vertices1_vbo = std::make_unique<VertexBuffer>(vertices1, sizeof(vertices1), buffer_layout);
+        p_vao = std::make_unique<VertexArray>();
+        p_vertices = std::make_unique<VertexBuffer>(vertices, sizeof(vertices), buffer_layout);
+        p_index_buffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
-        p_vao1->add_buffer(*p_vertices1_vbo);
-
-        p_vao2 = std::make_unique<VertexArray>();
-        p_vertices2_vbo = std::make_unique<VertexBuffer>(vertices2, sizeof(vertices2), buffer_layout);
-
-        p_vao2->add_buffer(*p_vertices2_vbo);
+        p_vao->add_vertex_buffer(*p_vertices);
+        p_vao->set_index_buffer(*p_index_buffer);
 
         return 0;
 	}
@@ -192,20 +186,9 @@ namespace Engine
         ImGui::Begin("Change background color");
         ImGui::ColorEdit4("Background color", m_background_color);
 
-        static bool use_first_buffer = true;
-        ImGui::Checkbox("First Buffer: ", &use_first_buffer);
-        if (use_first_buffer)
-        {
-            p_shader_program->bind();
-            p_vao1->bind();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
-        else
-        {
-            p_shader_program->bind();
-            p_vao2->bind();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
+        p_shader_program->bind();
+        p_vao->bind();
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indicies_count()), GL_UNSIGNED_INT, nullptr);
 
         ImGui::End();
 

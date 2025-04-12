@@ -44,7 +44,7 @@ namespace Engine
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::add_buffer(const VertexBuffer& vertex_buffer)
+	void VertexArray::add_vertex_buffer(const VertexBuffer& vertex_buffer)
 	{
 		bind();
 		vertex_buffer.bind();
@@ -62,5 +62,17 @@ namespace Engine
 			);
 			++m_element_count;
 		}
+	}
+
+	void VertexArray::set_index_buffer(const IndexBuffer& index_buffer)
+	{
+		bind();
+		index_buffer.bind();
+		m_indices_count = index_buffer.get_count();
+	}
+
+	size_t VertexArray::get_indicies_count() const
+	{
+		return m_indices_count;
 	}
 }
