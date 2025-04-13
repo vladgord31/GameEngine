@@ -68,7 +68,7 @@ namespace Engine
 
 	int Window::init()
 	{   
-        LOG_INFO("Creating window {0} width size {1}x{2}", m_data.title, m_data.width, m_data.height);
+        LOG_INFO("[WINDOW] Creating window {0} width size {1}x{2}", m_data.title, m_data.width, m_data.height);
         if (!s_GLFW_initialized)
         {
             if (!glfwInit())
@@ -101,7 +101,7 @@ namespace Engine
         glfwSetWindowSizeCallback(m_pWindow,
             [](GLFWwindow* pWindow, int width, int height)
             {
-                LOG_INFO("New size {0}x{1}", width, height);
+                LOG_INFO("[WINDOW] New size {0}x{1}", width, height);
 
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 data.width = width;
@@ -181,7 +181,7 @@ namespace Engine
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        //ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
 
         ImGui::Begin("Change background color");
         ImGui::ColorEdit4("Background color", m_background_color);

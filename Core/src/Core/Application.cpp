@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "Core/Application.hpp"
 #include "Core/Log.hpp"
 #include "Core/Window.hpp"

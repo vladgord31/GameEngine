@@ -1,5 +1,7 @@
 #include "IndexBuffer.hpp"
+
 #include "glad/glad.h"
+
 #include "Core/Log.hpp"
 
 namespace Engine

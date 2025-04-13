@@ -1,4 +1,5 @@
 #pragma once
+
 #include "VertexBuffer.hpp"
 
 namespace Engine

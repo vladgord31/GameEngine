@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
-#include "Core/Event.hpp"
 #include <functional>
+
+#include "Core/Event.hpp"
 
 struct GLFWwindow;
 
